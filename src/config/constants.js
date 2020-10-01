@@ -12,7 +12,8 @@ module.exports = {
   },
   SERVER: {
     PORT: 3006,
-    DB_HOST: 'mongodb://localhost/flutter-ciisa-dev',
+    DB_HOST: 'mongodb+srv://appipciisa:3pMZs0eKOoWmwMwG@flutterdev.k4c0k.mongodb.net/ciisa-dev?retryWrites=true&w=majority',
+    // DB_HOST: 'mongodb://localhost/flutter-ciisa-dev',
     SECRECT_TOKEN: 'tokenipciisaproyectoflutter'
   },
   SERVICES: {
