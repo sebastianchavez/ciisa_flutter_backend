@@ -1,20 +1,18 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt-nodejs')
 const uuidv1 = require('uuid').v1
-const emailService = require('../services/email-service')
 const authService = require('../services/auth-service')
 const CONSTANTS = require('../config/constants')
 const userCtrl = {}
 
 userCtrl.register = async (req, res) => {
   try {
-    const { email, password, type } = req.body
+    const { rut, password, type } = req.body
     const newUser = new User({
-      email,
+      rut,
       password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)),
       role: type,
       active: true,
-      state: 'available'
     })
     await newUser.save()
     res.status(200).json({ message: 'Usuario registrado con éxito' })
@@ -30,37 +28,22 @@ userCtrl.register = async (req, res) => {
 
 userCtrl.signIn = async (req, res) => {
   try {
-    const { type, email, password } = req.body
-    const userData = await User.findOne({ email })
+    console.log('BODY:', req.body)
+    const { rut, password } = req.body
+    const userData = await User.findOne({ rut })
     if (userData) {
       if (bcrypt.compareSync(password, userData.password) === true) {
-        if (type === 'admin') {
-          if (userData.state === 'pending') {
-            return res.status(404).send({ message: 'Cuenta pendiente a confirmación' })
-          } else {
-            const token = authService.createToken(userData)
-            const body = userData
-            body.accessToken = token
-            body.lastLogin = Date.now()
-            await User.findOneAndUpdate({ _id: userData._id }, { lastLogin: body.lastLogin })
-            const { email, role, state, _id, following } = userData
-            return res.status(200).json({ accessToken: token, email, name: userData.name ? userData.name : '', role, state, _id, avatar: userData.avatar ? userData.avatar : '', following })
-          }
-        } else if (type === 'user') {
-          if (userData.state === 'available') {
+          if (userData.active === true) {
             const token = authService.createToken(userData)
             const body = userData
             body.accessToken = token
             body.lastLogin = Date.now()
             await User.findByIdAndUpdate(userData._id, { lastLogin: body.lastLogin })
-            const { email, role, state, _id, following } = userData
-            return res.status(200).json({ accessToken: token, email, role, state, name: userData.name ? userData.name : '', avatar: userData.avatar ? userData.avatar : '', _id, following })
+            const { rut, role, _id } = userData
+            return res.status(200).json({ rut, accessToken: token, email : userData.email ? userData.email : '', role, name: userData.name ? userData.name : '', profileImage: userData.profileImage ? userData.profileImage : '', _id })
           } else {
             return res.status(101).send({ message: 'Usuario inactívo, favor consultar con el administrador' })
           }
-        } else {
-          res.status(400).send({ message: 'Error: typo de usuario inválido' })
-        }
       } else {
         res.status(400).send({ message: 'Error: contraseña incorrecta' })
       }
@@ -145,7 +128,6 @@ userCtrl.recoveryPassword = async (req, res) => {
       if (user.state === 'available' || user.state === 'recovery') {
         const newPass = uuidv1().substr(0, 6)
         await User.findOneAndUpdate({ email }, { state: 'recovery', password: bcrypt.hashSync(newPass, bcrypt.genSaltSync(10)) })
-        emailService.recoveryPassword(user, newPass)
         return res.status(200).send({ message: `Se ha enviado un correo a: ${email} con nueva contraseña` })
       } else {
         return res.status(401).send({ message: 'usuario inactivo' })

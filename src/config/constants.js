@@ -12,7 +12,7 @@ module.exports = {
   },
   SERVER: {
     PORT: 3006,
-    DB_HOST: 'mongodb://localhost/dev',
+    DB_HOST: 'mongodb://localhost/flutter-ciisa-dev',
     SECRECT_TOKEN: 'tokenipciisaproyectoflutter'
   },
   SERVICES: {
@@ -30,5 +30,11 @@ module.exports = {
       USER: '',
       PASS: ''
     }
+  },
+  ROLES: {
+    ADMIN: 'ADMIN',
+    ADMINISTRATIVE: 'ADMINISTRATIVE',
+    TEACHER: 'TEACHER',
+    STUDENT: 'STUDENT'
   }
 }
