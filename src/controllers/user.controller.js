@@ -8,10 +8,14 @@ const userCtrl = {}
 userCtrl.register = async (req, res) => {
   try {
     const { rut, password, type } = req.body
+    const body = req.body
     const newUser = new User({
       rut,
       password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)),
-      role: type,
+      name: body.name ? body.name : null,
+      email: body.email ? body.email : null,
+      lastname: body.lastname ? body.lastname : null,
+      type,
       active: true,
     })
     await newUser.save()
@@ -140,5 +144,6 @@ userCtrl.recoveryPassword = async (req, res) => {
     return res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }
+
 
 module.exports = userCtrl

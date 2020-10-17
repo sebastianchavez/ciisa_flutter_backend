@@ -17,8 +17,8 @@ adminCtrl.register = async (req, res) => {
         await newAdmin.save()
         res.status(200).json({ message: 'Usuario registrado con éxito' })
     } catch (e) {
-        console.log(err)
-        if (err.code === 11000) {
+        console.log(e)
+        if (e.code === 11000) {
             res.status(500).send({ message: 'Error: Cuenta duplicada' })
         } else {
             res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
@@ -53,6 +53,15 @@ adminCtrl.signIn = async (req, res) => {
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
+    }
+}
+
+adminCtrl.getById = async (req, res) => {
+    try {
+        const admin = await Admin.find()
+    res.status(200).json(admin)
+    } catch (e) {
+        
     }
 }
 
