@@ -33,29 +33,41 @@ userCtrl.register = async (req, res) => {
 userCtrl.signIn = async (req, res) => {
   try {
     console.log('BODY:', req.body)
-    const { rut, password } = req.body
+    const { rut, password, firebaseToken } = req.body
     const userData = await User.findOne({ rut })
+    console.log('userData:', userData)
     if (userData) {
       if (bcrypt.compareSync(password, userData.password) === true) {
-          if (userData.active === true) {
+          if (userData.state) {
             const token = authService.createToken(userData)
             const body = userData
             body.accessToken = token
             body.lastLogin = Date.now()
-            await User.findByIdAndUpdate(userData._id, { lastLogin: body.lastLogin })
+            await User.findByIdAndUpdate(userData._id, { lastLogin: body.lastLogin, accessToken: token, firebaseToken })
             const { rut, role, _id } = userData
-            return res.status(200).json({ rut, accessToken: token, email : userData.email ? userData.email : '', role, name: userData.name ? userData.name : '', profileImage: userData.profileImage ? userData.profileImage : '', _id })
+            return res.status(200).json({ rut, accessToken: token, email : userData.email ? userData.email : '', role, name: userData.name ? userData.name : '', profileImage: userData.profileImage ? userData.profileImage : '', _id, state: userData.state })
           } else {
-            return res.status(101).send({ message: 'Usuario inactívo, favor consultar con el administrador' })
+            return res.status(400).send({ message: 'Usuario inactívo, favor consultar con el administrador' })
           }
       } else {
-        res.status(400).send({ message: 'Error: contraseña incorrecta' })
+        res.status(400).send({ message: 'Contraseña incorrecta' })
       }
     } else {
-      res.status(400).send({ message: 'Error: usuario inválido' })
+      res.status(400).send({ message: 'No existe usuario' })
     }
-  } catch (err) {
-    console.log(err)
+  } catch (e) {
+    console.log(e)
+    res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
+  }
+}
+
+userCtrl.accessToken = async(req, res) => {
+  try {
+    console.log('req user:',req.user)
+    const userData = await User.findById(req.user.userId)
+    res.json({userData})
+  } catch (e) {
+    console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }

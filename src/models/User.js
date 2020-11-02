@@ -10,14 +10,15 @@ const userSchema = new Schema({
   lastLogin: Date,
   profileImage: String,
   type: String,
-  active: Boolean,
+  state: Boolean,
   career: String,
   segments: [
     {
       segmentId: { type: Schema.Types.ObjectId, ref:'Segment' }
     }
   ],
-  deviceToken: String
+  firebaseToken: String,
+  accessToken: String
 }, {
   timestamps: true
 })

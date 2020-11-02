@@ -1,6 +1,6 @@
 'use strict'
 
-const services = require('../services')
+const services = require('../services/auth-service')
 
 const isAuth = (req, res, next) => {
   if (!req.headers.authorization) {
