@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const mongoose = require('mongoose')
 const bcrypt = require('bcrypt-nodejs')
 const uuidv1 = require('uuid').v1
 const authService = require('../services/auth-service')
@@ -16,7 +17,7 @@ userCtrl.register = async (req, res) => {
       email: body.email ? body.email : null,
       lastname: body.lastname ? body.lastname : null,
       type,
-      active: true,
+      state: true
     })
     await newUser.save()
     res.status(200).json({ message: 'Usuario registrado con éxito' })
@@ -30,6 +31,32 @@ userCtrl.register = async (req, res) => {
   }
 }
 
+userCtrl.registerByExcel = async (req, res) => {
+  try {
+    const { users } = req.body
+    for (let usr of users) {
+      usr.segments.forEach((s, i) => {
+        usr.segments[i].segmentId = mongoose.Types.ObjectId(s.segmentId)
+      })
+      const newUser = new User({
+        rut: usr.rut,
+        password: bcrypt.hashSync(usr.password, bcrypt.genSaltSync(10)),
+        name: usr.name.trim(),
+        email: usr.email.trim().toLowerCase(),
+        type: usr.category,
+        state: true,
+        career: usr.career.trim().toLowerCase(),
+        segments: usr.segments
+      })
+      await newUser.save()
+    }
+    res.json({ message: 'Usuarios agregados' })
+  } catch (e) {
+    console.log(e)
+    res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
+  }
+}
+
 userCtrl.signIn = async (req, res) => {
   try {
     console.log('BODY:', req.body)
@@ -38,17 +65,17 @@ userCtrl.signIn = async (req, res) => {
     console.log('userData:', userData)
     if (userData) {
       if (bcrypt.compareSync(password, userData.password) === true) {
-          if (userData.state) {
-            const token = authService.createToken(userData)
-            const body = userData
-            body.accessToken = token
-            body.lastLogin = Date.now()
-            await User.findByIdAndUpdate(userData._id, { lastLogin: body.lastLogin, accessToken: token, firebaseToken })
-            const { rut, role, _id } = userData
-            return res.status(200).json({ rut, accessToken: token, email : userData.email ? userData.email : '', role, name: userData.name ? userData.name : '', profileImage: userData.profileImage ? userData.profileImage : '', _id, state: userData.state })
-          } else {
-            return res.status(400).send({ message: 'Usuario inactívo, favor consultar con el administrador' })
-          }
+        if (userData.state) {
+          const token = authService.createToken(userData)
+          const body = userData
+          body.accessToken = token
+          body.lastLogin = Date.now()
+          await User.findByIdAndUpdate(userData._id, { lastLogin: body.lastLogin, accessToken: token, firebaseToken })
+          const { rut, role, _id } = userData
+          return res.status(200).json({ rut, accessToken: token, email: userData.email ? userData.email : '', role, name: userData.name ? userData.name : '', profileImage: userData.profileImage ? userData.profileImage : '', _id, state: userData.state })
+        } else {
+          return res.status(400).send({ message: 'Usuario inactívo, favor consultar con el administrador' })
+        }
       } else {
         res.status(400).send({ message: 'Contraseña incorrecta' })
       }
@@ -61,11 +88,11 @@ userCtrl.signIn = async (req, res) => {
   }
 }
 
-userCtrl.accessToken = async(req, res) => {
+userCtrl.accessToken = async (req, res) => {
   try {
-    console.log('req user:',req.user)
+    console.log('req user:', req.user)
     const userData = await User.findById(req.user.userId)
-    res.json({userData})
+    res.json({ userData })
   } catch (e) {
     console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
@@ -156,6 +183,5 @@ userCtrl.recoveryPassword = async (req, res) => {
     return res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }
-
 
 module.exports = userCtrl

@@ -1,19 +1,19 @@
 const AWS = require('aws-sdk')
-const { s3AccessKeyId, s3SecretAccessKey, bucket, bucketkey, ACL } = require('../config/server')
-const s3Sertive = {}
+const { S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET, S3_BUCKET_KEY, ACL } = require('../config/server')
+const s3Service = {}
 
 AWS.config.update({
-  accessKeyId: s3AccessKeyId,
-  secretAccessKey: s3SecretAccessKey
+  accessKeyId: S3_ACCESS_KEY_ID,
+  secretAccessKey: S3_SECRET_ACCESS_KEY
 })
 
 const params = {
-  Bucket: bucket,
-  Key: bucketkey,
+  Bucket: S3_BUCKET,
+  Key: S3_BUCKET_KEY,
   ACL: ACL
 }
 
-s3Sertive.getObject = async obj => {
+s3Service.getObject = async obj => {
   try {
     const s3 = new AWS.S3()
     params.Key = `${obj.path}${obj.image}`
@@ -24,7 +24,7 @@ s3Sertive.getObject = async obj => {
   }
 }
 
-s3Sertive.saveImage = (obj, callback) => {
+s3Service.saveImage = (obj, callback) => {
   try {
     const s3 = new AWS.S3()
     const encodedImage = obj.image
@@ -43,7 +43,7 @@ s3Sertive.saveImage = (obj, callback) => {
   }
 }
 
-s3Sertive.deleteImage = (obj, callback) => {
+s3Service.deleteImage = (obj, callback) => {
   try {
     const s3 = new AWS.S3()
     params.Key = `${obj.path}${obj.name}`
@@ -58,4 +58,4 @@ s3Sertive.deleteImage = (obj, callback) => {
   }
 }
 
-module.exports = s3Sertive
+module.exports = s3Service

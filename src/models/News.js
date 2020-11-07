@@ -7,12 +7,12 @@ const newsSchema = new Schema({
   description: String,
   segmentations: [
     {
-      segmentId: { type: Schema.Types.ObjectId, ref: 'Segment'}
+      segmentId: { type: Schema.Types.ObjectId, ref: 'Segment' }
     }
   ],
   comentaries: [
     {
-      userId: { type: Schema.Types.ObjectId, ref: 'User'},
+      userId: { type: Schema.Types.ObjectId, ref: 'User' },
       comentary: String,
       date: Date,
       visible: Boolean
@@ -20,7 +20,7 @@ const newsSchema = new Schema({
   ],
   likes: [
     {
-      userId: { type: Schema.Types.ObjectId, ref: 'User'}
+      userId: { type: Schema.Types.ObjectId, ref: 'User' }
     }
   ]
 }, {

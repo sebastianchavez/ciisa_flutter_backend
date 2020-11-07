@@ -6,13 +6,13 @@ const notificationSchema = new Schema({
   title: String,
   description: String,
   states: [
-      {
-          state: String,
-          date: Date
-      }
+    {
+      state: String,
+      date: Date
+    }
   ]
 }, {
-      timestamps: true
+  timestamps: true
 })
 
 module.exports = mongoose.model('Notification', notificationSchema)

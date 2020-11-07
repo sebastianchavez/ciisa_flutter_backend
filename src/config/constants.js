@@ -18,10 +18,11 @@ module.exports = {
   },
   SERVICES: {
     S3: {
-      accessKeyId: '',
-      secretAccessKey: '',
-      bucket: '',
-      bucketkey: '',
+      URL: '',
+      ACCESS_KEY_ID: '',
+      SECRET_ACCESS_KEY: '',
+      BUCKET: '',
+      BUCKET_KEY: '',
       ACL: ''
     },
     EMAIL: {
@@ -37,5 +38,8 @@ module.exports = {
     ADMINISTRATIVE: 'ADMINISTRATIVE',
     TEACHER: 'TEACHER',
     STUDENT: 'STUDENT'
+  },
+  PATHS: {
+
   }
 }
