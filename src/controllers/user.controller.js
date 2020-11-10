@@ -53,7 +53,11 @@ userCtrl.registerByExcel = async (req, res) => {
     res.json({ message: 'Usuarios agregados' })
   } catch (e) {
     console.log(e)
-    res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
+    if(e.code == 11000){
+      res.status(400).send({message: 'Ya existe un usuario asociado a rut'})
+    } else {
+      res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
+    }
   }
 }
 

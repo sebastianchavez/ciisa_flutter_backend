@@ -31,6 +31,10 @@ module.exports = {
       PORT: 465,
       USER: '',
       PASS: ''
+    },
+    FIREBASE:{
+      FIREBASE_KEY: '',
+      FIREBASE_URL: ''
     }
   },
   ROLES: {
@@ -39,7 +43,15 @@ module.exports = {
     TEACHER: 'TEACHER',
     STUDENT: 'STUDENT'
   },
+  TYPES_NOTIFICATION: {
+    NOTIFICATION: 'NOTIFICATION',
+    NEWS: 'NEWS',
+    ACTIVITY: 'ACTIVITY'
+  },
+  STATES_NOTIFICATION: {
+    SEND: 'SEND',
+    VIEW: 'VIEW'
+  },
   PATHS: {
-
   }
 }
