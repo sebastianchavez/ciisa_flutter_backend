@@ -5,6 +5,7 @@ const segmentSchema = new Schema({
   career: String,
   subject: String,
   section: Number,
+  year: Number,
   period: Number
 }, {
   timestamps: true
