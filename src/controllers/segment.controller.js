@@ -5,7 +5,7 @@ const segmentCtrl = {}
 segmentCtrl.newSegment = async (req, res) => {
   try {
     const { career, subject, section, year, period } = req.body
-    const segment = await Segment.findOne({career, subject, section, year, period})
+    const segment = await Segment.findOne({career: career.toLowerCase(), subject: subject.toLowerCase(), section, year, period})
     console.log('SEGMENT:', segment)
     if(!segment){
       const newSegment = new Segment({
