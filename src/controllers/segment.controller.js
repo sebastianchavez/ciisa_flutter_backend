@@ -6,6 +6,7 @@ segmentCtrl.newSegment = async (req, res) => {
   try {
     const { career, subject, section, year, period } = req.body
     const segment = await Segment.findOne({career, subject, section, year, period})
+    console.log('SEGMENT:', segment)
     if(!segment){
       const newSegment = new Segment({
         career: career.toLowerCase(),
@@ -15,9 +16,9 @@ segmentCtrl.newSegment = async (req, res) => {
         period
       })
       await newSegment.save()
-      res.json({ message: 'Segmentacion agregada' })
+      return res.json({ message: 'Segmentacion agregada' })
     } else {
-      res.status(400).json({ message: 'Ya existe esta segmentación' })
+      return res.status(400).json({ message: 'Ya existe esta segmentación' })
     }
   } catch (e) {
     console.log(e)
