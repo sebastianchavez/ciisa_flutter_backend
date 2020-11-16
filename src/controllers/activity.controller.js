@@ -20,53 +20,15 @@ activityCtrl.getActivities = async (req, res) => {
 activityCtrl.createActivities = async (req, res) => {
     let users = []
     const {  title, description, date, initialHour, finishHour} = req.body;
+    //const { title, description, date, initialHour, finishHour, _carreer, _subject, _section, _period} = req.body
+    //const { title, description, date, initialHour, finishHour} = req.body;
     try {
-        //const { title, description, date, initialHour, finishHour, _carreer, _subject, _section, _period} = req.body
-        //const { title, description, date, initialHour, finishHour} = req.body;
-        //const newActivity = new Activity(req.body);
+
         
         //const users = await User.find({ segments })
-        /*
-        const newActivity = new Activity({
-            userId,
-            title,
-            description,
-            date,
-            initialHour,
-            finishHour
-        })*/
+        
         /*
         var query = {carreer: _carreer, subject: _subject, section: _section, period: _period};
-
-        users = dbo.collection("User").find(query).toArray(
-            // Aqui estoy perdido
-            function(err, result) {
-                if (err) throw err;
-                console.log(result);
-                db.close();
-                //
-
-
-
-            }
-        );
-        
-        //const newActivity = new Activity(req.body)
-        for(var user in users) {
-
-            const newActivity = new Activity({
-                userId: user._id,
-                title,
-                description,
-                date,
-                initialHour,
-                finishHour
-            })
-
-
-            console.log(user);
-            await newActivity.save();
-        }
         */
 
 
@@ -93,29 +55,12 @@ activityCtrl.createActivities = async (req, res) => {
             await newActivity.save();
         }
 
-
-
-        //await newActivity.save();
         res.send({message: "Activity Created in Users"});
         //res.json({ users });
     } catch (e) {
         res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
     }
 };
-
-/*
-activityCtrl.createActivities = async (req, res) => {
-    
-    try {
-        const newActivity = new Activity(req.body);
-        await newActivity.save();
-        
-        res.json({ newActivity });
-    } catch (e) {
-        res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
-    }
-};
-*/
 
 activityCtrl.getActivity = async (req, res) => {
 
