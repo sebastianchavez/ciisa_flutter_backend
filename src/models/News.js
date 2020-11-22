@@ -3,6 +3,7 @@ const Schema = mongoose.Schema
 
 const newsSchema = new Schema({
   image: String,
+  imageName: String,
   title: String,
   description: String,
   segmentations: [

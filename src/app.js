@@ -16,5 +16,7 @@ app.use(express.json({ limit: '50mb' }))
 app.use('/api/users', require('./routes/user'))
 app.use('/api/admins', require('./routes/admin'))
 app.use('/api/segments', require('./routes/segment'))
+app.use('/api/news', require('./routes/news'))
+app.use('/api/notifications', require('./routes/notification'))
 
 module.exports = app

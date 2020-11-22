@@ -1,27 +1,82 @@
+const mongoose = require('mongoose')
 const News = require('../models/News')
 const Segment = require('../models/Segment')
+const User = require('../models/User')
+const PushNotification = require('../models/PushNotification')
 const s3Service = require('../services/s3-service')
+const fcmService = require('../services/fcm-service')
 const CONSTANTS = require('../config/constants')
 const newsCtrl = {}
 
 newsCtrl.createNews = async (req, res) => {
+    console.log('BODY: ', req.body)
     try {
-        const { image, title, description, criteria } = req.body
-        const segments = await Segment.find(criteria)
+        const { image, title, description, criteria, imageName } = req.body
+        let newCriteria = {}
+        if(criteria.year > 0){
+            newCriteria.year = criteria.year
+        }
+        if(criteria.section > 0){
+            newCriteria.section = criteria.section
+        }
+        if(criteria.period > 0) {
+            newCriteria.period = criteria.period
+        }
+        if(criteria.career != ''){
+            newCriteria.career = criteria.career
+        }
+        if(criteria.subject != ''){
+            newCriteria.subject = criteria.subject
+        }
+        console.log('CRITERIA:', newCriteria)
+        const segments = await Segment.find(newCriteria)
         if(segments && segments.length > 0){
             const segmentations = []
             segments.forEach(s => {
-                segmentations.push({_id: s._id})
+                segmentations.push({segmentId: mongoose.Types.ObjectId(s._id)})
             })
-            setTimeout(() => {
+            const arraySegments = segmentations.map(s => s.segmentId)
+            setTimeout(async () => {
                 const newNews = new News({
                     image,
+                    imageName,
                     title,
                     description,
+                    segmentations,
                     comentaries: [],
-                    likes: []    
+                    likes: [] 
                 })
                 await newNews.save()
+                const users = await User.find({'segments.segmentId': {$in: arraySegments}})
+                console.log('Usuarios:',users)
+                if(users.length > 0){
+                    for(let usr of users){
+                        if(usr.firebaseToken){
+                            const newPush = new PushNotification({
+                                userId: mongoose.Types.ObjectId(usr._id),
+                                type: CONSTANTS.TYPES_NOTIFICATION.NEWS,
+                                newsId: mongoose.Types.ObjectId(newNews._id),
+                                states: [
+                                    {
+                                        state: CONSTANTS.STATES_NOTIFICATION.SEND,
+                                        date: new Date()
+                                    }
+                                ]
+                            })
+                            await newPush.save()
+                            let obj = {
+                                firebaseToken: usr.firebaseToken,
+                                title: 'Nueva noticia',
+                                body: 'CIISA ha publicado una nueva noticia',
+                                data: {}
+                            }
+                            fcmService.sendPush(obj)
+                        }
+                    }
+                    return res.json({message: 'Noticia creada'})
+                } else {
+                    return res.json({message: 'Noticia creada'})
+                }
             },1000)
         } else {
             res.status(404).json({message: 'No existe segmentación'})
@@ -78,8 +133,9 @@ newsCtrl.updateImage = (req, res) => {
                 console.log('Error s3:', error)
                 return res.status(500).json({message: 'Problemas con servicio de imagenes, favor intente más tarde'})
             }   else {
+                console.log('Response s3:', response)
                 // TODO: crear formato de respuesta
-                return res.status(200).json({})
+                return res.status(200).json({urlImage: response.Location})
             }
         })
     } catch (e) {

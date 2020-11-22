@@ -11,7 +11,7 @@ api.get('/get-by-id/:id', auth, getById)
 
 // POST
 
-api.post('/crea-news', auth, createNews)
+api.post('/create', auth, createNews)
 
 
 // PUT
