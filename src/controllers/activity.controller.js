@@ -1,8 +1,10 @@
+const mongoose = require('mongoose')
 const CONSTANTS = require('../config/constants')
-const activityCtrl = {}
 const User = require('../models/User')
-
+const Segment = require('../models/Segment')
 const Activity = require('../models/Activity')
+
+const activityCtrl = {}
 
 activityCtrl.getActivities = async (req, res) => {
 
@@ -14,34 +16,83 @@ activityCtrl.getActivities = async (req, res) => {
     }
     
 };
-//  AQUI ES DONDE TENEMOS UN PROBLEMA AL MOMENTO DE CREARLOS PERO POR ALGUNA RAZON NO AL MOMENTO DE UPDATE
-
 
 activityCtrl.createActivities = async (req, res) => {
-    let users = []
-    const {  title, description, date, initialHour, finishHour} = req.body;
-    //const { title, description, date, initialHour, finishHour, _carreer, _subject, _section, _period} = req.body
-    //const { title, description, date, initialHour, finishHour} = req.body;
+    //let users = []
+    
+    //console.log(req.body);
+    
+    console.log('BODY: ', req.body)
     try {
+        const { title, description, date, initialHour, finishHour, year, carreer, subject, section, period} = req.body
+        
+        
+        let query = { }
+        
+        if(year > 0){
+            query.year = year
+        }
+        if(carreer != ""){
+            query.carreer = carreer    
+        }
+        if(subject != ""){
+            query.subject = subject    
+        }
+        if(section > 0){
+            query.section = section    
+        }
+        if(period > 0){
+            query.period = period    
+        }
+        console.log('CRITERIA:', query)
+        const segments = await Segment.find(query)
+        //Hasta aqui esta funcionando
 
+
+
+
+        if(segments && segments.length > 0){
+            const segmentations = []
+            segments.forEach(s => {
+                segmentations.push({segmentId: mongoose.Types.ObjectId(s._id)})
+            })
+            
+            const arraySegments = segmentations.map(s => s.segmentId)
+            const users = await User.find({'segments.segmentId': {$in: arraySegments}})
+            console.log('Usuarios:', users)
+            
+            if(users.length > 0){
+                for(let user in users) {
+                    
+                    user_info = users[user]
+                    user_id = user_info._id
+                    
+                    let newActivity = new Activity({
+                        userId: mongoose.Types.ObjectId(user._id),
+                        title,
+                        description,
+                        date,
+                        initialHour,
+                        finishHour
+                    })  
+
+                    await newActivity.save();
+                    
+                }
+            }
+            
+        }
         
-        //const users = await User.find({ segments })
         
+        //const users = await User.find({ segments: [query]})
+        //const users = await User.find({ query })
+        //const users = await User.find()
         /*
-        var query = {carreer: _carreer, subject: _subject, section: _section, period: _period};
-        */
-
-
-        //Solo falta filtrar por segmentacion para estar perfecto
-        //me falta poder tener usuarios con segmentacion para arreglarlo
-       //const users = await User.find({ segments })
-       const users = await User.find()
-       
-       for(user in users) {
+        for(user in users) {
 
             user_info = users[user]
             user_id = user_info._id
-            
+            /*
             const newActivity = new Activity({
                 userId: user_id,
                 title,
@@ -51,10 +102,11 @@ activityCtrl.createActivities = async (req, res) => {
                 finishHour
             })
 
-        
+            
             await newActivity.save();
-        }
-
+            console.log(user_id)
+        }*/
+        
         res.send({message: "Activity Created in Users"});
         //res.json({ users });
     } catch (e) {
