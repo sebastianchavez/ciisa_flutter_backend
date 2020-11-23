@@ -13,7 +13,6 @@ api.get('/sections/year/:year/period/:period', auth, getSectionsByYear)
 api.get('/careers', auth, getCareers)
 api.get('/subjects', auth, getSubjects)
 
-
 // POST
 api.post('/new-segment', auth, newSegment)
 

@@ -6,5 +6,3 @@ const { testPush } = require('../controllers/notification.controller')
 api.post('/test', testPush)
 
 module.exports = api
-
-

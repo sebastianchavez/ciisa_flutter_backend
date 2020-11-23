@@ -32,7 +32,7 @@ module.exports = {
       USER: '',
       PASS: ''
     },
-    FIREBASE:{
+    FIREBASE: {
       FIREBASE_KEY: '',
       FIREBASE_URL: ''
     }

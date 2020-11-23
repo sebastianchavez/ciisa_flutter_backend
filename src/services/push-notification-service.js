@@ -6,9 +6,10 @@ const pushNotificationService = {}
 
 pushNotificationService.sendPush = async (data, callback) => {
     try {
+        let dataToSave = {}
         switch(data.type){
             case TYPES_NOTIFICATION.NEWS:
-                const newPush = new PushNotification({
+                dataToSave = {
                     userId: mongoose.Types.ObjectId(data.userId),
                     type: TYPES_NOTIFICATION.NEWS,
                     newsId: mongoose.Types.ObjectId(data.newsId),
@@ -18,12 +19,10 @@ pushNotificationService.sendPush = async (data, callback) => {
                             date: new Date()
                         }
                     ]
-                })
-                await newPush.save()
-                callback(null, newPush)
+                }
                 break
             case TYPES_NOTIFICATION.ACTIVITY:
-                const newPush = new PushNotification({
+                dataToSave = {
                     userId: mongoose.Types.ObjectId(data.userId),
                     type: TYPES_NOTIFICATION.NEWS,
                     activityId: mongoose.Types.ObjectId(data.activityId),
@@ -33,12 +32,10 @@ pushNotificationService.sendPush = async (data, callback) => {
                             date: new Date()
                         }
                     ]
-                })
-                await newPush.save()
-                callback(null, newPush)
+                }
                 break
             case TYPES_NOTIFICATION.NOTIFICATION:
-                const newPush = new PushNotification({
+                dataToSave = {
                     userId: mongoose.Types.ObjectId(data.userId),
                     type: TYPES_NOTIFICATION.NEWS,
                     notificationId: mongoose.Types.ObjectId(data.notificationId),
@@ -48,11 +45,12 @@ pushNotificationService.sendPush = async (data, callback) => {
                             date: new Date()
                         }
                     ]
-                })
-                await newPush.save()
-                callback(null, newPush)
+                }
                 break
         }
+        const newPush = new PushNotification(dataToSave)
+        await newPush.save()
+        callback(null, newPush)
     } catch (e) {
         callback(e)
     }

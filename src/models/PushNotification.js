@@ -5,8 +5,8 @@ const pushNotificationSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
   type: String,
   newsId: { type: Schema.Types.ObjectId, ref: 'News' },
-  activityId: { type: Schema.Types.ObjectId, ref:'Activity' },
-  notificationId: { type: Schema.Types.ObjectId, ref:'Notification' },
+  activityId: { type: Schema.Types.ObjectId, ref: 'Activity' },
+  notificationId: { type: Schema.Types.ObjectId, ref: 'Notification' },
   states: [
     {
       state: String,

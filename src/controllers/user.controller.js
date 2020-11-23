@@ -34,7 +34,7 @@ userCtrl.register = async (req, res) => {
 userCtrl.registerByExcel = async (req, res) => {
   try {
     const { users } = req.body
-    for (let usr of users) {
+    for (const usr of users) {
       usr.segments.forEach((s, i) => {
         usr.segments[i].segmentId = mongoose.Types.ObjectId(s.segmentId)
       })
@@ -53,8 +53,8 @@ userCtrl.registerByExcel = async (req, res) => {
     res.json({ message: 'Usuarios agregados' })
   } catch (e) {
     console.log(e)
-    if(e.code == 11000){
-      res.status(400).send({message: 'Ya existe un usuario asociado a rut'})
+    if (e.code == 11000) {
+      res.status(400).send({ message: 'Ya existe un usuario asociado a rut' })
     } else {
       res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
     }
@@ -76,7 +76,7 @@ userCtrl.signIn = async (req, res) => {
           body.lastLogin = Date.now()
           await User.findByIdAndUpdate(userData._id, { lastLogin: body.lastLogin, accessToken: token, firebaseToken })
           const { rut, role, _id } = userData
-          return res.status(200).json({ rut, accessToken: token, email: userData.email ? userData.email : '', role, name: userData.name ? userData.name : '', profileImage: userData.profileImage ? userData.profileImage : '', _id, state: userData.state })
+          return res.status(200).json({ rut, accessToken: token, email: userData.email ? userData.email : '', role, name: userData.name ? userData.name : '', profileImage: userData.profileImage ? userData.profileImage : '', _id, state: userData.state, segments: userData.segments })
         } else {
           return res.status(400).send({ message: 'Usuario inactívo, favor consultar con el administrador' })
         }
