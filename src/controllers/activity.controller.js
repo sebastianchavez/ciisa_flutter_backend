@@ -4,6 +4,10 @@ const User = require('../models/User')
 const Segment = require('../models/Segment')
 const Activity = require('../models/Activity')
 
+const PushNotification = require('../models/PushNotification')
+//const s3Service = require('../services/s3-service')
+const fcmService = require('../services/fcm-service')
+
 const activityCtrl = {}
 
 activityCtrl.getActivities = async (req, res) => {
@@ -48,9 +52,7 @@ activityCtrl.createActivities = async (req, res) => {
         const segments = await Segment.find(query)
         //Hasta aqui esta funcionando
 
-
-
-
+        /*
         if(segments && segments.length > 0){
             const segmentations = []
             segments.forEach(s => {
@@ -63,10 +65,9 @@ activityCtrl.createActivities = async (req, res) => {
             
             if(users.length > 0){
                 for(let user in users) {
-                    
+
                     user_info = users[user]
                     user_id = user_info._id
-                    
                     let newActivity = new Activity({
                         userId: mongoose.Types.ObjectId(user._id),
                         title,
@@ -75,38 +76,66 @@ activityCtrl.createActivities = async (req, res) => {
                         initialHour,
                         finishHour
                     })  
-
                     await newActivity.save();
-                    
                 }
             }
-            
-        }
-        
-        
-        //const users = await User.find({ segments: [query]})
-        //const users = await User.find({ query })
-        //const users = await User.find()
-        /*
-        for(user in users) {
-
-            user_info = users[user]
-            user_id = user_info._id
-            /*
-            const newActivity = new Activity({
-                userId: user_id,
-                title,
-                description,
-                date,
-                initialHour,
-                finishHour
-            })
-
-            
-            await newActivity.save();
-            console.log(user_id)
         }*/
-        
+
+        if (segments && segments.length > 0) {
+            const segmentations = []
+            segments.forEach(s => {
+              segmentations.push({ segmentId: mongoose.Types.ObjectId(s._id) })
+            })
+            const arraySegments = segmentations.map(s => s.segmentId)
+            setTimeout(async () => {
+                
+              const users = await User.find({ 'segments.segmentId': { $in: arraySegments } })
+              console.log('Usuarios:', users)
+              if (users.length > 0) {
+                for (const usr of users) {
+
+                    let newActivity = new Activity({
+                        userId: mongoose.Types.ObjectId(usr._id),
+                        title,
+                        description,
+                        date,
+                        initialHour,
+                        finishHour
+                    })
+                    await newActivity.save();
+
+                  if (usr.firebaseToken) {
+                    const newPush = new PushNotification({
+                      userId: mongoose.Types.ObjectId(usr._id),
+                      type: CONSTANTS.TYPES_NOTIFICATION.NEWS,
+                      activityId: mongoose.Types.ObjectId(newActivity._id),
+                      states: [
+                        {
+                          state: CONSTANTS.STATES_NOTIFICATION.SEND,
+                          date: new Date()
+                        }
+                      ]
+                    })
+                    await newPush.save()
+                    const obj = {
+                      firebaseToken: usr.firebaseToken,
+                      title: 'Nueva actividad',
+                      body: 'CIISA ha publicado una nueva actividad',
+                      data: {
+                        type: CONSTANTS.TYPES_NOTIFICATION.ACTIVITY,
+                        activities: newActivity
+                      }
+                    }
+                    fcmService.sendPush(obj)
+                  }
+                }
+                return res.json({ message: 'Actividad creada' })
+              } else {
+                return res.json({ message: 'Actividad creada' })
+              }
+            }, 1000)
+          }
+
         res.send({message: "Activity Created in Users"});
         //res.json({ users });
     } catch (e) {
