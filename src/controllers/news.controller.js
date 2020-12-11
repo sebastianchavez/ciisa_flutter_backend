@@ -114,8 +114,31 @@ newsCtrl.getById = async (req, res) => {
 }
 
 newsCtrl.getByCriteria = async (req, res) => {
-  try {
-    // TODO: Definir filtros
+  try { 
+    let criteria = {}
+    if(req.query.year > 0){
+      criteria.year = req.query.year
+    }
+    if(req.query.period > 0){
+      criteria.period = req.query.period
+    }
+    if(req.query.section > 0){
+      criteria.section = req.query.section
+    }
+    if(req.query.career != ''){
+      criteria.career = req.query.career
+    }
+    if(req.query.subject != ''){
+      criteria.subject = req.query.subject
+    }
+    const segments = await Segment.find(criteria)
+    if(segments && segments.length > 0){
+      const arrSegments = segments.map(s => s._id)
+      const news = await News.find({'segmentations.segmentId': {$in: arrSegments}}).sort({createdAt: -1})
+      return res.json({news})
+    } else {
+      return res.status(404).json({message: 'No existe segmentacion'})
+    }
   } catch (e) {
     console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })

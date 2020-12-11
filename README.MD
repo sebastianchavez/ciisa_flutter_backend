@@ -1,6 +1,6 @@
 # CIISA Backend
 
-Proyecto Backend con NodeJS para Instituto CIISA
+Proyecto Backend con NodeJS para Instituto CIISA el cual contiene la lógica de negocio, notificaciones push, conexión con AWS
 
 ## Comenzando 🚀
 
@@ -39,20 +39,16 @@ Para producción ejecutar
 ```
 pm2 start index.js
 ```
+También es necesario contar con variables de entornos declaradas en "config/server.js"
 
 ## Construido con 🛠️
 
-* [Express](https://expressjs.com/es/) - El framework para construcción de API's
-* [Mongoose](https://mongoosejs.com/) -ORM
+* [Express](https://expressjs.com/es/) - Framework para construcción de API's
+* [Mongoose](https://mongoosejs.com/) - ORM
 
 ## Versionado 📌
 
-Usamos [GIT](https://git-scm.com/) para el versionado. Para todas los logs disponibles, mira los [logs en este repositorio](https://github.com/sebastianchavez/ciisa_flutter_backend/commits).
-
-## Autores ✒️
-
-* **Sebastián Chavez** - *Arquitectura de proyecto - Desarrollo* - [sebastianchavez](https://github.com/sebastianchavez)
-* **Sebastián Cornejos** - *Desarrollo* - [sebastiancornejos](https://github.com/SebastianCSilva)
+Usamos [GIT](https://git-scm.com/) para el versionado. [repositorio](https://github.com/sebastianchavez/ciisa_flutter_backend).
 
 
 ## Licencia 📄

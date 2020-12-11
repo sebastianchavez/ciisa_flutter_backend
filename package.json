@@ -1,5 +1,5 @@
 {
-  "name": "Proyecto-backend",
+  "name": "app-ciisa-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,7 +10,7 @@
     "lint": "standard"
   },
   "keywords": [],
-  "author": "",
+  "author": "Sebastian Chavez",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.792.0",

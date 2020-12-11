@@ -96,7 +96,11 @@ userCtrl.accessToken = async (req, res) => {
   try {
     console.log('req user:', req.user)
     const userData = await User.findById(req.user.userId)
-    res.json({ userData })
+    if(userData.accessToken && userData.accessToken != null){
+      return res.json({ userData })
+    } else {
+      return res.status(401).json({message: 'Token expirado'})
+    }
   } catch (e) {
     console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
