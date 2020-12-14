@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const Segment = require('../models/Segment')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt-nodejs')
 const uuidv1 = require('uuid').v1
@@ -63,7 +64,6 @@ userCtrl.registerByExcel = async (req, res) => {
 
 userCtrl.signIn = async (req, res) => {
   try {
-    console.log('BODY:', req.body)
     const { rut, password, firebaseToken } = req.body
     const userData = await User.findOne({ rut })
     console.log('userData:', userData)
@@ -111,8 +111,8 @@ userCtrl.getUsers = async (req, res) => {
   try {
     const user = await User.find()
     res.status(200).json(user)
-  } catch (err) {
-    console.log(err)
+  } catch (e) {
+    console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }
@@ -121,8 +121,8 @@ userCtrl.getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
     res.status(200).json(user)
-  } catch (err) {
-    console.log(err)
+  } catch (e) {
+    console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }
@@ -132,8 +132,86 @@ userCtrl.getUserByEmail = async (req, res) => {
     const email = req.params.email.split(',').join('.')
     const user = await User.find({ email })
     res.status(200).json(user)
-  } catch (err) {
-    console.log(err)
+  } catch (e) {
+    console.log(e)
+    res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
+  }
+}
+
+userCtrl.searchUser = async (req, res) => {
+  try {
+    const query = req.query
+    let criteria = {}
+    if(query.name && query.name != ''){
+      criteria.$and = []
+      let regex = new RegExp('^' + query.name.toLowerCase(), 'i')
+      let option = { $regex: regex }
+      criteria.$and.push({ name: option })
+    }
+    if(query.email && query.email != ''){
+      if (criteria.$and) {
+        let regex = new RegExp('^' + query.email.toLowerCase(), 'i')
+        let option = { $regex: regex }
+        criteria.$and.push({ email: option })
+      } else {
+        criteria.$and = []
+        let regex = new RegExp('^' + query.email.toLowerCase(), 'i')
+        let option = { $regex: regex }
+        criteria.$and.push({ email: option })
+      }
+    }
+    if(query.rut && query.rut != '') {  
+      if(criteria.$and){
+        let regex = new RegExp('^' + query.rut.toLowerCase(), 'i')
+        let option = { $regex: regex }
+        criteria.$and.push({ rut: option })
+      }else {
+        criteria.$and = []
+        let regex = new RegExp('^' + query.rut.toLowerCase(), 'i')
+        let option = { $regex: regex }
+        criteria.$and.push({ rut: option })
+      }
+    }
+    let users
+    if(query.limit != 'all'){
+      users = await User.find(criteria).limit(parseFloat(query.limit))
+    } else {
+      users = await User.find(criteria)
+    }
+    return res.json({users})
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+userCtrl.findUserBySegments = async (req, res) => {
+  try {
+    let criteria = {}
+    if(req.query.year > 0){
+      criteria.year = req.query.year
+    }
+    if(req.query.period > 0){
+      criteria.period = req.query.period
+    }
+    if(req.query.section > 0){
+      criteria.section = req.query.section
+    }
+    if(req.query.career != ''){
+      criteria.career = req.query.career
+    }
+    if(req.query.subject != ''){
+      criteria.subject = req.query.subject
+    }
+    const segments = await Segment.find(criteria)
+    if(segments && segments.length > 0){
+      const arrSegments = segments.map(s => s._id)
+      const users = await User.find({'segments.segmentId': {$in: arrSegments}})
+      return res.json({users})
+    } else {
+      return res.status(404).json({message: 'No existe segmentación'})
+    }
+  } catch (e) {
+    console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }
@@ -143,8 +221,8 @@ userCtrl.disableUser = async (req, res) => {
     const user = req.body
     await User.findByIdAndUpdate(user._id, { state: 'inavailable', active: false })
     res.status(200).send({ message: 'usuario deshabilitado' })
-  } catch (err) {
-    console.log(err)
+  } catch (e) {
+    console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }
@@ -155,8 +233,8 @@ userCtrl.activateUser = async (req, res) => {
     console.log(id)
     await User.findByIdAndUpdate(id, { state: 'available', active: true })
     res.status(200).send({ message: 'Usuario activado' })
-  } catch (err) {
-    console.log(err)
+  } catch (e) {
+    console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }
@@ -166,8 +244,8 @@ userCtrl.changePassword = async (req, res) => {
     const { password } = req.body
     await User.findOneAndUpdate({ _id: req.params.id }, { password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)) })
     res.status(200).send({ message: 'Contraseña actualizada' })
-  } catch (err) {
-    res.status(500).send({ message: `Error: ${err.message}` })
+  } catch (e) {
+    res.status(500).send({ message: `Error: ${e}` })
   }
 }
 
@@ -186,8 +264,8 @@ userCtrl.recoveryPassword = async (req, res) => {
     } else {
       return res.status(404).send({ message: 'No existe usuario' })
     }
-  } catch (err) {
-    console.log(err)
+  } catch (e) {
+    console.log(e)
     return res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
   }
 }

@@ -49,7 +49,32 @@ segmentCtrl.getByYear = async (req, res) => {
 
 segmentCtrl.getByCriteria = async (req, res) => {
   try {
-
+    const query = req.query
+    console.log('QUERY:', query)
+    const criteria = {}
+    if (query.year > 0) {
+      criteria.year = query.year
+    }
+    if (query.section > 0) {
+      criteria.section = query.section
+    }
+    if (query.period > 0) {
+      criteria.period = query.period
+    }
+    if (query.career != '') {
+      criteria.career = query.career
+    }
+    if (query.subject != '') {
+      criteria.subject = query.subject
+    }
+    console.log('CRITERIA:', criteria)
+    let segments
+    if(query.limit && query.limit != 'all'){
+      segments = await Segment.find(criteria).limit(parseFloat(query.limit))
+    }else {
+      segments = await Segment.find(criteria)
+    }
+    res.json({segments})
   } catch (e) {
     console.log(e)
     res.status(500).send({ message: CONSTANTS.MESSAGES.ERROR.DEFAULT_MESSAGE })
